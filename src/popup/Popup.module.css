@@ -1,0 +1,162 @@
+/* Light mode (default) colors */
+:root {
+	--bg-color: #ffffff;
+	--text-color: #2f2f2f;
+	--title-color: #1a1a1a;
+	--title-border: #6b4fbb;
+	--section-title: #4a4a4a;
+	--label-color: #666;
+	--input-border: #ddd;
+	--input-focus: #6b4fbb;
+	--button-bg: #f3f3f3;
+	--button-color: #4a4a4a;
+	--primary-button-bg: #6b4fbb;
+	--primary-button-hover: #5a3fa9;
+	--button-hover-bg: #e9e9e9;
+	--error-color: #dc3545;
+	--error-bg: #fff5f5;
+	--shadow-color: rgba(0, 0, 0, 0.1);
+	--focus-shadow: rgba(107, 79, 187, 0.1);
+}
+
+/* Dark mode colors */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--bg-color: #1f1f1f;
+		--text-color: #e0e0e0;
+		--title-color: #f5f5f5;
+		--title-border: #8c6fec;
+		--section-title: #c0c0c0;
+		--label-color: #b0b0b0;
+		--input-border: #444;
+		--input-focus: #8c6fec;
+		--button-bg: #333;
+		--button-color: #e0e0e0;
+		--primary-button-bg: #8c6fec;
+		--primary-button-hover: #9d82f7;
+		--button-hover-bg: #444;
+		--error-color: #ff6b6b;
+		--error-bg: #3a2a2a;
+		--shadow-color: rgba(0, 0, 0, 0.3);
+		--focus-shadow: rgba(140, 111, 236, 0.2);
+	}
+}
+
+.container {
+	width: 400px;
+	padding: 20px;
+	background: var(--bg-color);
+	box-shadow: 0 4px 6px var(--shadow-color);
+	box-sizing: border-box;
+
+	* {
+		box-sizing: border-box;
+	}
+}
+
+.title {
+	color: var(--title-color);
+	margin-bottom: 24px;
+	font-size: 1.5rem;
+	border-bottom: 2px solid var(--title-border);
+	padding-bottom: 8px;
+}
+
+.section {
+	margin-bottom: 30px;
+}
+
+.sectionTitle {
+	color: var(--section-title);
+	margin-bottom: 16px;
+	font-size: 1.1rem;
+}
+
+.inputGroup {
+	margin-bottom: 16px;
+}
+
+.label {
+	display: block;
+	margin-bottom: 8px;
+	color: var(--label-color);
+	font-weight: 500;
+}
+
+.input {
+	width: 100%;
+	padding: 8px 12px;
+	border: 1px solid var(--input-border);
+	border-radius: 4px;
+	transition: border-color 0.2s;
+	background: var(--bg-color);
+	color: var(--text-color);
+}
+
+.input:focus {
+	border-color: var(--input-focus);
+	outline: none;
+	box-shadow: 0 0 0 2px var(--focus-shadow);
+}
+
+.button {
+	padding: 10px 16px;
+	border-radius: 4px;
+	border: none;
+	cursor: pointer;
+	font-weight: 500;
+	transition: all 0.2s;
+	background: var(--button-bg);
+	color: var(--button-color);
+}
+
+.buttonPrimary {
+	composes: button;
+	background: var(--primary-button-bg);
+	color: #ffffff;
+}
+
+.button:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px var(--shadow-color);
+	background: var(--button-hover-bg);
+}
+
+.buttonPrimary:hover {
+	background: var(--primary-button-hover);
+}
+
+.button:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+	transform: none;
+}
+
+.error {
+	color: var(--error-color);
+	padding: 12px;
+	background: var(--error-bg);
+	border-radius: 4px;
+	margin-bottom: 16px;
+}
+
+.checkboxContainer {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 2rem;
+}
+
+.checkbox {
+	width: 16px;
+	height: 16px;
+	margin: 0;
+	cursor: pointer;
+}
+
+.checkboxLabel {
+	font-size: 14px;
+	color: var(--label-color);
+	cursor: pointer;
+	user-select: none;
+}

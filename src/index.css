@@ -1,0 +1,63 @@
+pre.shiki code {
+	background-color: transparent !important;
+}
+pre.shiki {
+	border-radius: 8px !important;
+}
+
+.shiki-with-line-numbers {
+	counter-reset: line;
+}
+
+.shiki-with-line-numbers .line {
+	counter-increment: line;
+}
+
+.shiki-with-line-numbers .line::before {
+	content: counter(line);
+	display: inline-block;
+	width: 2rem;
+	margin-right: 1rem;
+	color: var(--line-number-color, #666);
+	text-align: right;
+	user-select: none;
+}
+
+.code-review-suggestion {
+	display: inline-block;
+	padding: 1rem;
+	background-color: var(--suggestion-bg, #f0f0f0);
+	border-radius: 4px;
+	width: 100%;
+}
+
+.severity-label {
+	color: white;
+	padding: 2px 6px;
+	border-radius: 4px;
+	margin-right: 8px;
+	font-size: 12px;
+}
+
+.line-number {
+	font-weight: bold;
+	margin-right: 4px;
+}
+
+.suggestion-text {
+	margin-top: 8px;
+	margin-bottom: 8px;
+}
+
+/* Color scheme support */
+:root {
+	--line-number-color: #666;
+	--suggestion-bg: #f0f0f0;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--line-number-color: #999;
+		--suggestion-bg: #333;
+	}
+}
