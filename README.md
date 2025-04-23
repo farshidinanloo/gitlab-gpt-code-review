@@ -12,7 +12,7 @@ A lightweight Chrome extension that connects to **GitLab API** and **OpenAI GPT 
 
 ## 📸 Screenshots
 
-*(Add some screenshots of your extension in action here)*
+![screenshot](./public/screenshot.png)
 
 ## 🚀 Getting Started
 
@@ -24,10 +24,7 @@ A lightweight Chrome extension that connects to **GitLab API** and **OpenAI GPT 
 
 ### Installation
 
-1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/gpt-gitlab-review-extension.git
-
+1. Clone the repository
 2. pnpm i
 3. pnpm build
 
