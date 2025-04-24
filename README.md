@@ -30,8 +30,7 @@ A lightweight Chrome extension that connects to **GitLab API** and **OpenAI GPT 
 
 ## How to use:
 
-1. first download form Releases and extract it
-2. navigate to this address in chrome: **chrome://extensions/**
-3. enable **Developer mode** in top right corner
-4. click on **Load unpacked** button
-5. upload dist folder.
+1. navigate to this address in chrome: **chrome://extensions/**
+2. enable **Developer mode** in top right corner
+3. click on **Load unpacked** button
+4. upload dist folder.
