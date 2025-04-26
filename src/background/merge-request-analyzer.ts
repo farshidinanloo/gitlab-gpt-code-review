@@ -1,7 +1,7 @@
-import {GitLabAPI} from '../api/gitlab';
-import {GPTAPI} from '../api/gpt';
-import {MergeRequestPayload} from './types';
-import {MessageResponse} from './types';
+import { GitLabAPI } from '../api/gitlab';
+import { GPTAPI } from '../api/gpt';
+import { MergeRequestPayload } from './types';
+import { MessageResponse } from './types';
 
 export class MergeRequestAnalyzer {
 	private gitlabApi: GitLabAPI;
@@ -20,7 +20,7 @@ export class MergeRequestAnalyzer {
 				payload.mergeRequestId
 			);
 			const analysis = await this.gptApi.analyzeCodeChanges(changes);
-			const {isAddComment} = await chrome.storage.local.get('isAddComment');
+			const { isAddComment } = await chrome.storage.local.get('isAddComment');
 
 			if (analysis && isAddComment) {
 				const urlParts = payload.url.split('/');
@@ -49,7 +49,8 @@ export class MergeRequestAnalyzer {
 					});
 				});
 			}
-			return {success: true, analysis: !isAddComment ? analysis : undefined};
+
+			return { success: true, analysis: !isAddComment ? analysis : undefined };
 		} catch (error) {
 			return {
 				success: false,

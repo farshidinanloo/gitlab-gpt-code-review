@@ -1,8 +1,6 @@
-import {GitLabConfig, MergeRequestChange} from './types';
+import { MergeRequestChange } from './types';
 
 export class GitLabAPI {
-	private baseUrl: string;
-	private token: string | null = null;
 	private projectId: string | null = null;
 	private diffRefs: {
 		base_sha: string;
@@ -10,31 +8,37 @@ export class GitLabAPI {
 		head_sha: string;
 	} | null = null;
 
-	constructor(config: GitLabConfig = {}) {
-		this.baseUrl = config.baseUrl || 'https://gitlab.com/api/v4';
-		this.initializeToken();
-		this.getProjectId();
-	}
+	constructor() {}
 
-	private async initializeToken(): Promise<void> {
-		const result = await chrome.storage.local.get('gitlabToken');
-		this.token = result.gitlabToken || null;
+	private async getLocalData(): Promise<{
+		gitlabToken: string;
+		pathname: string;
+		gitlabBase: string;
+	}> {
+		const tokenResult = await chrome.storage.local.get('gitlabToken');
+		const pathnameResult = await chrome.storage.local.get('pathname');
+		const gitlabBaseResult = await chrome.storage.local.get('gitlabBase');
+
+		return {
+			gitlabToken: tokenResult.gitlabToken,
+			pathname: pathnameResult.pathname,
+			gitlabBase: gitlabBaseResult.gitlabBase,
+		};
 	}
 
 	private async getProjectId(): Promise<string | null> {
-		const urlData = (await chrome.storage.local.get('url')) as {url: string};
-		if (!urlData.url) {
+		const { pathname, gitlabBase, gitlabToken } = await this.getLocalData();
+		if (!pathname) {
 			return null;
 		}
 
-		const {projectName} = this.extractProjectInfo(urlData.url);
+		const projectName = this.extractProjectInfo(pathname);
 
-		const result = await chrome.storage.local.get('gitlabToken');
-		const token = result.gitlabToken || null;
+		const token = gitlabToken || null;
 
 		try {
 			const response = await fetch(
-				`${this.baseUrl}/projects?search=${projectName}`,
+				`${gitlabBase}/api/v4/projects/${encodeURIComponent(projectName)}`,
 				{
 					headers: {
 						'PRIVATE-TOKEN': token!,
@@ -50,8 +54,8 @@ export class GitLabAPI {
 			}
 
 			const data = await response.json();
-			this.projectId = data[0].id;
-			return data[0].id;
+			this.projectId = data.id;
+			return data.id;
 		} catch (error) {
 			const errorMessage =
 				error instanceof Error ? error.message : 'Unknown error';
@@ -59,31 +63,23 @@ export class GitLabAPI {
 		}
 	}
 
-	private validateToken(): void {
-		if (!this.token) {
-			throw new Error('GitLab token not set. Please call setToken() first.');
+	private extractProjectInfo(urlPath: string): string {
+		const splitIndex = urlPath.indexOf('/-/merge_requests');
+		if (splitIndex === -1) {
+			return urlPath;
 		}
-	}
-
-	private extractProjectInfo(gitlabUrl: string): {
-		namespace: string;
-		projectName: string;
-	} {
-		const regex = /gitlab\.com\/([^/]+)\/([^/]+)\//;
-		const match = gitlabUrl.match(regex);
-
-		if (match) {
-			const [, namespace, projectName] = match;
-			return {namespace, projectName};
-		}
-
-		throw new Error('Invalid GitLab URL');
+		return urlPath.substring(urlPath.startsWith('/') ? 1 : 0, splitIndex);
 	}
 
 	async getMergeRequestChanges(
 		mergeRequestId: string
 	): Promise<MergeRequestChange[]> {
-		this.validateToken();
+		// this.validateToken();
+		const { gitlabBase, gitlabToken } = await this.getLocalData();
+
+		if (!this.projectId) {
+			await this.getProjectId();
+		}
 
 		if (!this.projectId) {
 			throw new Error('Project ID not provided');
@@ -91,10 +87,10 @@ export class GitLabAPI {
 
 		try {
 			const response = await fetch(
-				`${this.baseUrl}/projects/${this.projectId}/merge_requests/${mergeRequestId}/changes`,
+				`${gitlabBase}/api/v4/projects/${this.projectId}/merge_requests/${mergeRequestId}/changes`,
 				{
 					headers: {
-						'PRIVATE-TOKEN': this.token!,
+						'PRIVATE-TOKEN': gitlabToken!,
 						'Content-Type': 'application/json',
 					},
 				}
@@ -128,19 +124,19 @@ export class GitLabAPI {
 			};
 		}
 	): Promise<MergeRequestChange[]> {
-		this.validateToken();
+		// this.validateToken();
 
 		if (!this.projectId) {
 			throw new Error('Project ID not provided');
 		}
-
+		const { gitlabBase, gitlabToken } = await this.getLocalData();
 		try {
 			const response = await fetch(
-				`${this.baseUrl}/projects/${this.projectId}/merge_requests/${mergeRequestId}/discussions`,
+				`${gitlabBase}/api/v4/projects/${this.projectId}/merge_requests/${mergeRequestId}/discussions`,
 				{
 					method: 'POST',
 					headers: {
-						'PRIVATE-TOKEN': this.token!,
+						'PRIVATE-TOKEN': gitlabToken,
 						'Content-Type': 'application/json',
 					},
 					body: JSON.stringify({
@@ -173,11 +169,10 @@ export class GitLabAPI {
 	}
 
 	setToken(token: string): void {
-		this.token = token;
-		chrome.storage.local.set({gitlabToken: token});
+		chrome.storage.local.set({ gitlabToken: token });
 	}
 
 	setUrl(url: string): void {
-		chrome.storage.local.set({url});
+		chrome.storage.local.set({ url });
 	}
 }

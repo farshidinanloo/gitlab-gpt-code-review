@@ -8,17 +8,11 @@ import {
 	useSuggestionElements,
 } from './hooks';
 
-// TODO
-// code font
-// model select
-// comment or info
-// record video with no audio
 const AnalysisButton: React.FC = () => {
 	const analysis = useAnalysis();
 	const highlighter = useHighlighter();
 	const addSuggestionElements = useSuggestionElements(analysis, highlighter);
 	useScrollHandler(highlighter, analysis, addSuggestionElements);
-
 
 	return null;
 };
