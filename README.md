@@ -4,7 +4,7 @@ A lightweight Chrome extension that connects to **GitLab API** and **OpenAI GPT 
 
 ## ✨ Features
 
-- 🔗 Connects directly to your GitLab Merge Requests
+- 🔗 Connects directly to your GitLab Merge Requests (it works on self hosted gitlab too)
 - 🤖 Uses GPT to review and suggest improvements in code
 - ⏱ Saves time by summarizing and analyzing code changes
 - 💬 Generates smart comments for MR discussions
