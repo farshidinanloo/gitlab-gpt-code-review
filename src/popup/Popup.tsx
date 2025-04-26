@@ -14,29 +14,53 @@ export const Popup: React.FC = () => {
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [isAddComment, setIsAddComment] = useState(false);
+	const [gitlabBase, setGitlabBase] = useState('https://gitlab.com');
+	const [pathname, setPathname] = useState('');
 
 	useEffect(() => {
-		chrome.storage.local.get(['gitlabToken', 'gptApiKey', 'gptModel', 'isAddComment'], (result) => {
-			if (result.gitlabToken) setGitlabToken(result.gitlabToken);
-			if (result.gptApiKey) setGptApiKey(result.gptApiKey);
-			if (result.gptModel) setSelectedModel(result.gptModel);
-			if (result.isAddComment) setIsAddComment(result.isAddComment);
+		chrome.storage.local.get(
+			[
+				'gitlabToken',
+				'gptApiKey',
+				'gptModel',
+				'isAddComment',
+				'gitlabBase',
+				'pathname',
+			],
+			(result) => {
+				if (result.gitlabToken) setGitlabToken(result.gitlabToken);
+				if (result.gptApiKey) setGptApiKey(result.gptApiKey);
+				if (result.gptModel) setSelectedModel(result.gptModel);
+				if (result.isAddComment) setIsAddComment(result.isAddComment);
+			}
+		);
+
+		chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+			if (tabs.length > 0 && tabs[0].url) {
+				const parsed = new URL(tabs[0].url);
+				setGitlabBase(parsed.origin);
+				setPathname(parsed.pathname);
+			}
 		});
 	}, []);
 
 	const handleSaveSettings = async () => {
 		gitlabApi.setToken(gitlabToken);
 		gptApi.setApiKey(gptApiKey);
-		chrome.storage.local.set({ gitlabToken, gptApiKey, gptModel: selectedModel, isAddComment });
+		chrome.storage.local.set({
+			gitlabToken,
+			gptApiKey,
+			gptModel: selectedModel,
+			isAddComment,
+			gitlabBase,
+			pathname,
+		});
 
 		const [tab] = await chrome.tabs.query({
 			active: true,
 			currentWindow: true,
 		});
-		if (
-			!tab.url?.includes('gitlab.com') ||
-			!tab.url?.includes('/merge_requests/')
-		) {
+		if (!tab.url?.includes('/merge_requests/')) {
 			return;
 		}
 
@@ -52,10 +76,7 @@ export const Popup: React.FC = () => {
 				active: true,
 				currentWindow: true,
 			});
-			if (
-				!tab.url?.includes('gitlab.com') ||
-				!tab.url?.includes('/merge_requests/')
-			) {
+			if (!tab.url?.includes('/merge_requests/')) {
 				throw new Error('Please navigate to a GitLab merge request page');
 			}
 
@@ -140,7 +161,7 @@ export const Popup: React.FC = () => {
 							}}
 							className={styles.checkbox}
 						/>
-						<label htmlFor="addComment" className={styles.checkboxLabel}>
+						<label htmlFor='addComment' className={styles.checkboxLabel}>
 							Add Comment
 						</label>
 					</div>

@@ -7,8 +7,8 @@ const manifest = defineManifest({
 	name: 'GitLab Code Review Assistant',
 	version: '1.0.0',
 	description: 'AI-powered code review assistant for GitLab merge requests',
-	permissions: ['storage', 'activeTab', 'scripting'],
-	host_permissions: ['https://*.gitlab.com/*'],
+	permissions: ['storage', 'activeTab', 'scripting', 'tabs'],
+	host_permissions: ['<all_urls>'],
 	action: {
 		default_popup: 'index.html',
 		default_icon: {
@@ -23,7 +23,7 @@ const manifest = defineManifest({
 	},
 	content_scripts: [
 		{
-			matches: ['https://*.gitlab.com/*/merge_requests/*'],
+			matches: ['<all_urls>'],
 			js: ['src/content/content.tsx'],
 			run_at: 'document_idle',
 		},

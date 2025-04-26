@@ -1,4 +1,4 @@
-import {CodeAnalysis} from './types';
+import { CodeAnalysis } from './types';
 
 export class GPTAPI {
 	private apiKey: string | null = null;
@@ -64,12 +64,13 @@ export class GPTAPI {
 		return data.choices[0].message.content;
 	}
 
-	extractMistakesWithLineNumbers(
-		diff: string
-	): {line: number; message: string; oldLine: number}[] {
-		const mistakes: {line: number; message: string; oldLine: number}[] = [];
-		const lines = diff.split('\n');
+	extractChangedLines(diff: string) {
+		const changedLines = {
+			added: [] as number[],
+			removed: [] as number[],
+		};
 
+		const lines = diff.split('\n');
 		let oldLine = 0;
 		let newLine = 0;
 
@@ -81,33 +82,28 @@ export class GPTAPI {
 				continue;
 			}
 
-			if (line.startsWith(' ')) {
-				oldLine++;
-				newLine++;
-			} else if (line.startsWith('-')) {
+			if (line.startsWith('-')) {
+				changedLines.removed.push(oldLine);
 				oldLine++;
 			} else if (line.startsWith('+')) {
-				const mistakeMatch = line.match(/\/\/ Mistake \d+: (.+)/);
-				if (mistakeMatch) {
-					mistakes.push({
-						line: newLine,
-						oldLine: oldLine,
-						message: mistakeMatch[1].trim(),
-					});
-				}
+				changedLines.added.push(newLine);
+				newLine++;
+			} else {
+				oldLine++;
 				newLine++;
 			}
 		}
 
-		return mistakes;
+		return changedLines;
 	}
 
 	private generatePrompt(changes: unknown[]): string {
 		const lineNumbers = changes.map((change: any) => {
-			return this.extractMistakesWithLineNumbers(change.diff);
+			return this.extractChangedLines(change.diff);
 		});
+
 		return `Please analyze these code changes and provide specific suggestions for improvement:
-${JSON.stringify(changes, null, 2)}
+${JSON.stringify(changes)}
 
 Focus on:
 1. Code quality and best practices
@@ -119,11 +115,11 @@ For each suggestion, include a code block showing the suggested implementation.
 
 please be more careful about line number because i want to call gitlab api to comment on the changes.
 this is the line numbers of the changes:
-${JSON.stringify(lineNumbers, null, 2)}
+${JSON.stringify(lineNumbers)}
 Format your response as a JSON object with 'suggestions' and 'summary' fields like this: {
   "suggestions":  [
     {
-      "file":  "filename.js",
+      "file":  "src/components/filename.js",
 			"data": [
 				{
 					"line": 42,
@@ -159,6 +155,6 @@ Format your response as a JSON object with 'suggestions' and 'summary' fields li
 
 	async setApiKey(apiKey: string): Promise<void> {
 		this.apiKey = apiKey;
-		await chrome.storage.local.set({[GPTAPI.STORAGE_KEY]: apiKey});
+		await chrome.storage.local.set({ [GPTAPI.STORAGE_KEY]: apiKey });
 	}
 }
